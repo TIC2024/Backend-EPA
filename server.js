@@ -123,6 +123,56 @@ app.get('/api/tiposcontrato', (req, res) => {
     });
 });
 
+// Actualizar un contrato
+app.put('/api/contratos/:id', (req, res) => {
+    const { id } = req.params;
+    const { objeto, novedades, idestado, idcontrato } = req.body;
+
+    const sql = `
+UPDATE dtcontratos 
+SET 
+    objeto = ?, 
+    novedades = ?, 
+    estado = ?, 
+    idcontrato = ? 
+WHERE idconsecutivo = ?`;
+
+db.query(sql, [objeto, novedades, idestado, idcontrato, id], (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ success: false, message: 'Error al actualizar el contrato' });
+            return;
+        }
+        if (results.affectedRows > 0) {
+            res.json({ success: true, message: 'Contrato actualizado correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Contrato no encontrado' });
+        }
+    });
+});
+
+// Eliminar un contrato
+app.delete('/api/contratos/:id', (req, res) => {
+    // Extraer el ID del contrato de la URL
+    const { id } = req.params;
+
+    const sql = 'DELETE FROM dtcontratos WHERE idconsecutivo = ?';
+
+    db.query(sql, [id], (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ success: false, message: 'Error al eliminar el contrato' });
+            return;
+        }
+        if (results.affectedRows > 0) {
+            res.json({ success: true, message: 'Contrato eliminado correctamente' });
+        } else {
+            res.status(404).json({ success: false, message: 'Contrato no encontrado' });
+        }
+    });
+});
+
+
 
 app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
